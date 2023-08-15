@@ -1,11 +1,15 @@
 
 package com.conductor.gateway.core.context;
 
+import com.conductor.common.config.Rule;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * 核心上下文接口定义
+ */
 public interface IContext {
 
     /**
@@ -47,6 +51,8 @@ public interface IContext {
 
     /**
      * 判断网关状态运行状态
+     *
+     * @return
      */
     boolean isRunning();
 
@@ -58,31 +64,50 @@ public interface IContext {
 
     /**
      * 获取请求转换协议
+     *
+     * @return
      */
     String getProtocol();
 
     /**
+     * 获取请求转换协议
+     *
+     * @return
+     */
+    Rule getRule();
+
+    /**
      * 获取请求对象
+     *
+     * @return
      */
     Object getRequest();
 
     /**
      * 获取请求结果
+     *
+     * @return
      */
     Object getResponse();
 
     /**
      * 获取异常信息
+     *
+     * @return
      */
     Throwable getThrowable();
 
     /**
      * 获取上下文参数
+     *
+     * @return
      */
     Object getAttribute(Map<String, Object> key);
 
     /**
      * 设置请求规则
+     *
+     * @return
      */
     void setRule();
 
@@ -95,6 +120,8 @@ public interface IContext {
 
     /**
      * 设置请求异常信息
+     *
+     * @return
      */
     void setThrowable(Throwable throwable);
 
@@ -126,6 +153,8 @@ public interface IContext {
 
     /**
      * 设置回调函数
+     *
+     * @param consumer
      */
     void setCompletedCallBack(Consumer<IContext> consumer);
 

@@ -1,6 +1,8 @@
 package com.conductor.gateway.core.request.impl;
 
 import com.conductor.gateway.core.request.IGatewayRequest;
+import com.conductor.gateway.common.util.TimeUtil;
+import com.conductor.gateway.common.constants.BasicConst;
 import io.netty.handler.codec.http.cookie.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import com.google.common.collect.Lists;
@@ -9,66 +11,67 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 /**
+ * 网关请求类实现
+ *
  * @author Ian
  * @date 2023/06/28 17:30
  **/
 @Slf4j
 public class GatewayRequest implements IGatewayRequest {
+
     /**
-     * 服务ID
+     * 首先我们需要来看一下，请求中不会变化的变量
+     * 首先我们需要给我们的服务顶一个唯一的服务ID，一般是ServiceID：Version
+     * 对于一个FullHttpRequest: 在header里面必须要有该属性：uniqueId
      */
     @Getter
     private final String uniqueId;
-
     /**
-     * 请求进入网关时间
+     * 接下来是进入网关的开始时间戳
      */
     @Getter
     private final long beginTime;
-
     /**
-     * 字符集不会变的
+     * 字符集
      */
     @Getter
     private final Charset charset;
 
     /**
-     * 客户端的IP，主要用于做流控、黑白名单
+     * 客户端的ip地址，主要用于做流控、黑白名单
      */
     @Getter
     private final String clientIp;
 
     /**
-     * 请求的地址：IP：port
+     * 请求的地址：ip:port
      */
     @Getter
     private final String host;
 
     /**
-     * 请求的路径   /XXX/XXX/XX
+     * 请求的路径：/xxx/xx/xxx
      */
     @Getter
     private final String path;
 
     /**
-     * URI：统一资源标识符，/XXX/XXX/XXX?attr1=value&attr2=value2
-     * URL：统一资源定位符，它只是URI的子集一个实现
+     * URI：统一资源标识符，/xxx/xx/xxx?attr1=value1&attr2=value2
+     * urL:统一资源定位符，它只是URI的一种实现
      */
     @Getter
     private final String uri;
 
     /**
-     * 请求方法 post/put/GET
+     * 请求的方式：get/post/put...
      */
     @Getter
     private final HttpMethod method;
@@ -89,7 +92,7 @@ public class GatewayRequest implements IGatewayRequest {
      * 参数解析器
      */
     @Getter
-    private final QueryStringDecoder queryStringDecoder;
+    private final QueryStringDecoder queryDecoder;
 
     /**
      * FullHttpRequest
@@ -100,67 +103,64 @@ public class GatewayRequest implements IGatewayRequest {
     /**
      * 请求体
      */
-    @Getter
     private String body;
 
-
-    @Setter
-    @Getter
-    private long userId;
-
     /**
-     * 请求Cookie
+     * 请求对象里面的cookie：
      */
-    @Getter
     private Map<String, Cookie> cookieMap;
 
     /**
-     * post请求定义的参数结合
+     * 请求的时候定义的post参数集合
      */
-    @Getter
     private Map<String, List<String>> postParameters;
 
 
-    /******可修改的请求变量***************************************/
+    /***************** IGatewayRequest:可修改的请求变量 	**********************/
+
+
     /**
-     * 可修改的Scheme，默认是http://
+     * 可修改的scheme：默认为 http://
      */
     private String modifyScheme;
 
+    /**
+     * 可修改的host
+     */
     private String modifyHost;
 
+    /**
+     * 可修改的path
+     */
     private String modifyPath;
 
     /**
-     * 构建下游请求是的http请求构建器
+     * 构建下游请求时的Http请构建器
      */
     private final RequestBuilder requestBuilder;
 
-    /**
-     * 构造器
-     */
-    public GatewayRequest(String uniqueId, Charset charset, String clientIp, String host, String uri, HttpMethod method, String contentType, HttpHeaders headers, FullHttpRequest fullHttpRequest) {
+    public GatewayRequest(String uniqueId, Charset charset, String clientIp, String host,
+                          String uri, HttpMethod method, String contentType, HttpHeaders headers, FullHttpRequest fullHttpRequest) {
         this.uniqueId = uniqueId;
         this.beginTime = TimeUtil.currentTimeMillis();
         this.charset = charset;
         this.clientIp = clientIp;
         this.host = host;
-        this.uri = uri;
         this.method = method;
         this.contentType = contentType;
         this.headers = headers;
+        this.uri = uri;
+        this.queryDecoder = new QueryStringDecoder(uri, charset);
+        this.path = queryDecoder.path();
         this.fullHttpRequest = fullHttpRequest;
-        this.queryStringDecoder = new QueryStringDecoder(uri, charset);
-        this.path = queryStringDecoder.path();
+
         this.modifyHost = host;
         this.modifyPath = path;
-
         this.modifyScheme = BasicConst.HTTP_PREFIX_SEPARATOR;
         this.requestBuilder = new RequestBuilder();
         this.requestBuilder.setMethod(getMethod().name());
         this.requestBuilder.setHeaders(getHeaders());
-        this.requestBuilder.setQueryParams(queryStringDecoder.parameters());
-
+        this.requestBuilder.setQueryParams(queryDecoder.parameters());
         ByteBuf contentBuffer = fullHttpRequest.content();
         if (Objects.nonNull(contentBuffer)) {
             this.requestBuilder.setBody(contentBuffer.nioBuffer());
@@ -168,7 +168,7 @@ public class GatewayRequest implements IGatewayRequest {
     }
 
     /**
-     * 获取请求体
+     * 获取body信息
      *
      * @return
      */
@@ -185,12 +185,12 @@ public class GatewayRequest implements IGatewayRequest {
      * @param name
      * @return
      */
-    public io.netty.handler.codec.http.cookie.Cookie getCookie(String name) {
+    public Cookie getCookie(String name) {
         if (cookieMap == null) {
-            cookieMap = new HashMap<String, io.netty.handler.codec.http.cookie.Cookie>();
+            cookieMap = new HashMap<String, Cookie>();
             String cookieStr = getHeaders().get(HttpHeaderNames.COOKIE);
-            Set<io.netty.handler.codec.http.cookie.Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieStr);
-            for (io.netty.handler.codec.http.cookie.Cookie cookie : cookies) {
+            Set<Cookie> cookies = ServerCookieDecoder.STRICT.decode(cookieStr);
+            for (Cookie cookie : cookies) {
                 cookieMap.put(name, cookie);
             }
         }
@@ -198,43 +198,39 @@ public class GatewayRequest implements IGatewayRequest {
     }
 
     /**
-     * 获取指定名词参数值
+     * 获取指定名称的参数值
      *
      * @param name
      * @return
      */
     public List<String> getQueryParametersMultiple(String name) {
-        return queryStringDecoder.parameters().get(name);
+        return queryDecoder.parameters().get(name);
     }
 
-    /**
-     * post请求获取指定名词参数值
-     *
-     * @param name
-     * @return
-     */
-    public List<String> getPostParametersMultiples(String name) {
+    public List<String> getPostParametersMultiple(String name) {
         String body = getBody();
         if (isFormPost()) {
             if (postParameters == null) {
                 QueryStringDecoder paramDecoder = new QueryStringDecoder(body, false);
                 postParameters = paramDecoder.parameters();
             }
+
             if (postParameters == null || postParameters.isEmpty()) {
                 return null;
             } else {
                 return postParameters.get(name);
             }
+
         } else if (isJsonPost()) {
             try {
                 return Lists.newArrayList(JsonPath.read(body, name).toString());
             } catch (Exception e) {
-                log.error("JsonPath解析失败，JsonPath:{},Body:{},", name, body, e);
+                //	ignore
+                log.error("#GatewayRequest# getPostParametersMultiple JsonPath解析失败，jsonPath: {}, body: {}", name, body, e);
             }
         }
         return null;
     }
-
 
     @Override
     public void setModifyHost(String modifyHost) {
@@ -283,6 +279,7 @@ public class GatewayRequest implements IGatewayRequest {
         requestBuilder.addOrReplaceCookie(cookie);
     }
 
+
     @Override
     public void setRequestTimeout(int requestTimeout) {
         requestBuilder.setRequestTimeout(requestTimeout);
@@ -294,9 +291,8 @@ public class GatewayRequest implements IGatewayRequest {
     }
 
     @Override
-    public Request build() {
+    public org.asynchttpclient.Request build() {
         requestBuilder.setUrl(getFinalUrl());
-        requestBuilder.addHeader("userId", String.valueOf(userId));
         return requestBuilder.build();
     }
 
@@ -307,6 +303,7 @@ public class GatewayRequest implements IGatewayRequest {
     }
 
     public boolean isJsonPost() {
-        return HttpMethod.POST.equals(method) && contentType.startsWith(HttpHeaderValues.APPLICATION_JSON.toString());
+        return HttpMethod.POST.equals(method) &&
+                contentType.startsWith(HttpHeaderValues.APPLICATION_JSON.toString());
     }
 }

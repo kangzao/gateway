@@ -1,18 +1,27 @@
 package com.conductor.gateway.core.context.impl;
 
+import com.conductor.common.config.Rule;
+import com.conductor.gateway.common.util.AssertUtil;
+import io.micrometer.core.instrument.Timer;
+import com.conductor.gateway.core.request.impl.GatewayRequest;
+import com.conductor.gateway.core.response.GatewayResponse;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.ReferenceCountUtil;
 import lombok.Getter;
 import lombok.Setter;
+
 
 /**
  * @author Ian
  * @date 2023/06/28 17:19
  **/
-public class GatewayContext extends BaseContext {
+public class GatewayContext extends BasicContext {
+
     private GatewayRequest request;
 
     private GatewayResponse response;
 
+    private Rule rule;
 
     @Setter
     @Getter
@@ -33,10 +42,11 @@ public class GatewayContext extends BaseContext {
                           GatewayRequest request, Rule rule) {
         super(protocol, nettyCtx, keepAlive);
         this.request = request;
-
+        this.rule = rule;
     }
 
 
+    //建造者模式构建对象
     public static class Builder {
         private String protocol;
         private ChannelHandlerContext nettyCtx;
@@ -142,5 +152,7 @@ public class GatewayContext extends BaseContext {
      */
     public GatewayRequest getOriginRequest() {
         return request;
+
     }
+
 }

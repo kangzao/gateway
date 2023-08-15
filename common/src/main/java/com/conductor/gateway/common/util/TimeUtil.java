@@ -1,4 +1,4 @@
-package com.conductor.gateway.util;
+package com.conductor.gateway.common.util;
 
 import java.util.concurrent.TimeUnit;
 

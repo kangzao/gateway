@@ -1,5 +1,6 @@
 package com.conductor.gateway.core.context.impl;
 
+import com.conductor.common.config.Rule;
 import com.conductor.gateway.core.context.IContext;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  * @author Ian
  * @date 2023/06/28 17:13
  **/
-public class BaseContext implements IContext {
+public class BasicContext implements IContext {
     /**
      * 转发协议
      */
@@ -53,11 +54,13 @@ public class BaseContext implements IContext {
     protected List<Consumer<IContext>> completedCallbacks;
 
     /**
-     * @param protocol  协议
-     * @param nettyCtx  netty上下文
-     * @param keepAlive 存活时间
+     * 构造函数
+     *
+     * @param protocol
+     * @param nettyCtx
+     * @param keepAlive
      */
-    public BaseContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive) {
+    public BasicContext(String protocol, ChannelHandlerContext nettyCtx, boolean keepAlive) {
         this.protocol = protocol;
         this.nettyCtx = nettyCtx;
         this.keepAlive = keepAlive;
@@ -109,6 +112,10 @@ public class BaseContext implements IContext {
         return this.protocol;
     }
 
+    @Override
+    public Rule getRule() {
+        return null;
+    }
 
     @Override
     public Object getRequest() {
