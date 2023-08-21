@@ -38,6 +38,7 @@ public class NettyHttpServer implements LifeCycle {
     public void init() {
         this.serverBootstrap = new ServerBootstrap();
         if (useEpoll()) {
+            //自定义线程池名称
             this.eventLoopGroupBoss = new EpollEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWoker = new EpollEventLoopGroup(config.getEventLoopGroupWokerNum(),
