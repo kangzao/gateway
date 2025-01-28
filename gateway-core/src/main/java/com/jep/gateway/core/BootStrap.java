@@ -25,13 +25,12 @@ public class BootStrap {
         //插件初始化
         //配置中心管理器初始化，连接配置中心，监听配置的新增、修改、删除
         ServiceLoader<ConfigCenter> serviceLoader = ServiceLoader.load(ConfigCenter.class);
-
         final ConfigCenter configCenter = serviceLoader.findFirst().orElseThrow(() -> {
             log.error("can't found ConfigCenter impl");
             return new RuntimeException("can't found ConfigCenter impl");
         });
 
-        //从配置中心获取数据
+        //初始化配置中心的接口
         configCenter.init(config.getRegistryAddress(), config.getEnv());
 
         configCenter.subscribeRulesChange(new RulesChangeListener() {
