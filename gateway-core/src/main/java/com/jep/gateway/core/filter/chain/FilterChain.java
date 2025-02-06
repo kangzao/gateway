@@ -1,7 +1,8 @@
-package com.jep.gateway.core.filter;
+package com.jep.gateway.core.filter.chain;
 
 import com.jep.gateway.core.context.ContextStatus;
 import com.jep.gateway.core.context.GatewayContext;
+import com.jep.gateway.core.filter.Filter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

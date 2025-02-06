@@ -13,6 +13,9 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import java.io.IOException;
 
 /**
+ * 负责创建和管理基于Netty的异步HTTP客户端
+ * NettyHttpClient 类负责创建和管理基于Netty的异步HTTP客户端。
+ * 它实现了LifeCycle接口，以提供初始化、启动和关闭客户端的方法。
  * @author enping.jep
  * @date 2025/1/27 21:45
  **/

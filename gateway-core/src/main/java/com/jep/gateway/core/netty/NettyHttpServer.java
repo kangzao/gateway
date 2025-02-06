@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 
 /**
+ * 接收外部请求并在内部进行流转
  * @author enping.jep
  * @date 2025/1/27 21:36
  **/
@@ -45,15 +46,28 @@ public class NettyHttpServer implements LifeCycle {
     }
 
 
+    /**
+     * 初始化Netty服务器配置
+     * 本方法根据环境选择合适的事件循环组（EventLoopGroup）以支持不同的网络传输
+     * 使用Epoll或NioEventLoopGroup取决于当前环境是否支持Epoll
+     * 这是为了确保在不同的运行环境下都能达到最优的性能表现
+     */
     @Override
     public void init() {
+        // 创建ServerBootstrap实例，用于服务器的配置与启动
         this.serverBootstrap = new ServerBootstrap();
+
+        // 根据环境选择使用Epoll还是Nio
         if (useEpoll()) {
+            // 如果环境支持Epoll，创建EpollEventLoopGroup实例
+            // 这里为Boss和Worker线程组分别创建实例，以处理不同的网络事件
             this.eventLoopGroupBoss = new EpollEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWoker = new EpollEventLoopGroup(config.getEventLoopGroupWokerNum(),
                     new DefaultThreadFactory("netty-woker-nio"));
         } else {
+            // 如果环境不支持Epoll，回退到NioEventLoopGroup
+            // 同样为Boss和Worker线程组分别创建实例
             this.eventLoopGroupBoss = new NioEventLoopGroup(config.getEventLoopGroupBossNum(),
                     new DefaultThreadFactory("netty-boss-nio"));
             this.eventLoopGroupWoker = new NioEventLoopGroup(config.getEventLoopGroupWokerNum(),

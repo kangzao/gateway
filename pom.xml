@@ -14,6 +14,9 @@
         <module>gateway-config</module>
         <module>gateway-register</module>
         <module>gateway-common</module>
+        <module>gateway-client</module>
+        <module>http-server</module>
+        <module>gateway-example</module>
     </modules>
 
     <properties>

@@ -1,4 +1,4 @@
-package com.jep.gateway.core.filter;
+package com.jep.gateway.core.filter.chain;
 
 import com.jep.gateway.core.context.GatewayContext;
 

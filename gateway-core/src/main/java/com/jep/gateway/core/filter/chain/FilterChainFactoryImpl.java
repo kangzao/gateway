@@ -1,10 +1,11 @@
-package com.jep.gateway.core.filter;
+package com.jep.gateway.core.filter.chain;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.jep.gateway.common.config.Rule;
 import com.jep.gateway.common.constant.FilterConst;
 import com.jep.gateway.core.context.GatewayContext;
+import com.jep.gateway.core.filter.Filter;
 import com.jep.gateway.core.filter.annotation.FilterAspect;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -92,36 +93,54 @@ public class FilterChainFactoryImpl implements FilterChainFactory {
     }
 
 
+    /**
+     * 构建过滤链
+     * 根据规则配置和预设的过滤器，构建一个过滤链对象
+     * 过滤链中包含了监控过滤器、根据规则配置的过滤器以及路由过滤器
+     *
+     * @param rule 规则对象，包含过滤器配置信息如果为null，则只构建默认的监控和路由过滤器
+     * @return 返回构建好的过滤链对象
+     */
     public FilterChain doBuildFilterChain(Rule rule) {
+        // 创建一个新的过滤链对象
         FilterChain chain = new FilterChain();
+        // 初始化一个过滤器列表
         List<Filter> filters = new ArrayList<>();
 
-        //监控相关的filter
+        // 添加监控相关的过滤器，用于监控服务请求的开始和结束
         filters.add(getFilterInfo(FilterConst.MONITOR_FILTER_ID));
         filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
 
+        // 如果规则对象不为空，则根据规则配置添加相应的过滤器到列表中
         if (rule != null) {
+            // 获取规则中的过滤器配置集合
             Set<Rule.FilterConfig> filterConfigs = rule.getFilterConfigs();
+            // 创建迭代器遍历过滤器配置集合
             Iterator<Rule.FilterConfig> iterator = filterConfigs.iterator();
             Rule.FilterConfig filterConfig;
+            // 遍历过滤器配置集合
             while (iterator.hasNext()) {
                 filterConfig = (Rule.FilterConfig) iterator.next();
+                // 如果过滤器配置为空，则跳过当前循环
                 if (filterConfig == null) {
                     continue;
                 }
+                // 获取过滤器配置中的ID
                 String filterId = filterConfig.getId();
+                // 如果过滤器ID不为空且对应的过滤器存在，则添加到过滤器列表中
                 if (StringUtils.isNotEmpty(filterId) && getFilterInfo(filterId) != null) {
                     Filter filter = getFilterInfo(filterId);
                     filters.add(filter);
                 }
             }
         }
-        //每个服务请求最终最后需要添加路由过滤器
+        // 每个服务请求最终最后需要添加路由过滤器，用于确定请求的路由路径
         filters.add(getFilterInfo(FilterConst.ROUTER_FILTER_ID));
-        //排序
+        // 对过滤器列表进行排序，根据过滤器的order值决定执行顺序
         filters.sort(Comparator.comparingInt(Filter::getOrder));
-        //添加到链表中
+        // 将排序后的过滤器列表添加到过滤链对象中
         chain.addFilterList(filters);
+        // 返回构建好的过滤链对象
         return chain;
     }
 

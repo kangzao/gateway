@@ -1,9 +1,11 @@
 package com.jep.gateway.common.config;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +14,8 @@ import java.util.Objects;
  * @author enping.jep
  * @date 2025/1/27 21:20
  **/
+@Setter
+@Getter
 @Builder
 @ToString
 public class ServiceDefinition implements Serializable {
@@ -62,8 +66,7 @@ public class ServiceDefinition implements Serializable {
         super();
     }
 
-    public ServiceDefinition(String uniqueId, String serviceId, String version, String protocol, String patternPath,
-                             String envType, boolean enable, Map<String, ServiceInvoker> invokerMap) {
+    public ServiceDefinition(String uniqueId, String serviceId, String version, String protocol, String patternPath, String envType, boolean enable, Map<String, ServiceInvoker> invokerMap) {
         super();
         this.uniqueId = uniqueId;
         this.serviceId = serviceId;
@@ -78,7 +81,7 @@ public class ServiceDefinition implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (this == null || getClass() != o.getClass()) return false;
+        if (getClass() != o.getClass()) return false;
         ServiceDefinition serviceDefinition = (ServiceDefinition) o;
         return Objects.equals(uniqueId, serviceDefinition.uniqueId);
     }
@@ -88,67 +91,4 @@ public class ServiceDefinition implements Serializable {
         return Objects.hash(uniqueId);
     }
 
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public String getPatternPath() {
-        return patternPath;
-    }
-
-    public void setPatternPath(String patternPath) {
-        this.patternPath = patternPath;
-    }
-
-    public String getEnvType() {
-        return envType;
-    }
-
-    public void setEnvType(String envType) {
-        this.envType = envType;
-    }
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public void setEnable(boolean enable) {
-        this.enable = enable;
-    }
-
-    public Map<String, ServiceInvoker> getInvokerMap() {
-        return invokerMap;
-    }
-
-    public void setInvokerMap(Map<String, ServiceInvoker> invokerMap) {
-        this.invokerMap = invokerMap;
-    }
 }

@@ -42,18 +42,28 @@ public class NacosConfigCenter implements ConfigCenter {
         }
     }
 
+    /**
+     * 订阅规则变化
+     * 当规则发生变化时，通知监听器
+     *
+     * @param listener 规则变化监听器，用于处理规则变化事件
+     */
     @Override
     public void subscribeRulesChange(RulesChangeListener listener) {
         try {
             //初始化通知
+            //从配置服务中获取初始配置信息
             String config = configService.getConfig(DATA_ID, env, 5000);
             //{"rules":[{}, {}]}
             log.info("config from nacos: {}", config);
+            //如果配置信息非空，则解析规则并通知监听器
             if (StringUtils.isNoneBlank(config)) {
                 List<Rule> rules = JSON.parseObject(config).getJSONArray("rules").toJavaList(Rule.class);
-                listener.onRulesChange(rules);//手动触发一次
+                // 手动刷新 DynamicConfigManager中的规则
+                listener.onRulesChange(rules);
             }
             //监听变化
+            //添加配置监听器，以便在规则变化时收到通知
             configService.addListener(DATA_ID, env, new Listener() {
                 @Override
                 public Executor getExecutor() {
@@ -62,6 +72,7 @@ public class NacosConfigCenter implements ConfigCenter {
 
                 @Override
                 public void receiveConfigInfo(String configInfo) {
+                    //当接收到配置信息时，解析规则并通知监听器
                     log.info("com.alibaba.nacos.api.config.ConfigService.addListener:config from nacos: {}", configInfo);
                     List<Rule> rules = JSON.parseObject(configInfo).getJSONArray("rules").toJavaList(Rule.class);
                     listener.onRulesChange(rules);
@@ -69,6 +80,7 @@ public class NacosConfigCenter implements ConfigCenter {
             });
 
         } catch (NacosException e) {
+            //如果发生Nacos异常，则包装成运行时异常抛出
             throw new RuntimeException(e);
         }
     }
