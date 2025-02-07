@@ -17,7 +17,7 @@ public class Config {
 
     private String serviceId = "api-gateway";
 
-    private String registryAddress = "127.0.0.1:8848";
+    private String registryAddress = "localhost:8848";
 
     private String env = "dev";
 

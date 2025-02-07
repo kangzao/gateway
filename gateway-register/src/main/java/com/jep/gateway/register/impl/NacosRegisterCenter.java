@@ -57,8 +57,6 @@ public class NacosRegisterCenter implements RegisterCenter {
 
     /**
      * 初始化方法
-     * 配置注册中心地址和环境信息，并初始化命名服务维护和命名服务对象
-     *
      * @param registerAddress 注册中心地址，用于配置和服务注册
      * @param env             环境信息，如开发、测试或生产环境
      * @throws RuntimeException 如果在创建命名服务维护或命名服务对象时发生Nacos异常，将抛出运行时异常
@@ -70,10 +68,10 @@ public class NacosRegisterCenter implements RegisterCenter {
         this.env = env;
 
         try {
-            // 创建命名服务维护对象，用于服务的维护操作
-            this.namingMaintainService = NamingMaintainFactory.createMaintainService(registerAddress);
-            // 创建命名服务对象，用于服务的注册与发现
+            // NamingService 是 Nacos 提供的核心服务接口，主要用于服务注册、服务发现、服务订阅等功能
             this.namingService = NamingFactory.createNamingService(registerAddress);
+            // NamingMaintainService 是一个用于维护服务实例元数据的接口
+            this.namingMaintainService = NamingMaintainFactory.createMaintainService(registerAddress);
         } catch (NacosException e) {
             // 将Nacos异常转换为运行时异常抛出，因为Nacos异常是检查型异常，无法直接抛出
             throw new RuntimeException(e);
@@ -98,6 +96,7 @@ public class NacosRegisterCenter implements RegisterCenter {
             nacosInstance.setInstanceId(serviceInstance.getServiceInstanceId());
             nacosInstance.setPort(serviceInstance.getPort());
             nacosInstance.setIp(serviceInstance.getIp());
+            // 实例信息可以放入到metadata中
             nacosInstance.setMetadata(Map.of(GatewayConst.META_DATA_KEY, JSON.toJSONString(serviceInstance)));
 
             /**
@@ -160,14 +159,12 @@ public class NacosRegisterCenter implements RegisterCenter {
      */
     private void doSubscribeAllServices() {
         try {
-            //已经订阅的服务
+            //拿到当前服务已经订阅的服务
             Set<String> subscribeServiceSet = namingService.getSubscribeServices().stream().map(ServiceInfo::getName).collect(Collectors.toSet());
             int pageNo = 1;
             int pageSize = 100;
-
             //分页从nacos拿到服务列表
             List<String> serviceList = namingService.getServicesOfServer(pageNo, pageSize, env).getData();
-
             while (CollectionUtils.isNotEmpty(serviceList)) {
                 log.info("service list size {}", serviceList.size());
                 for (String service : serviceList) {

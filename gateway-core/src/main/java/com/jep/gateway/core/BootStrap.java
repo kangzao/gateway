@@ -22,6 +22,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
+ * 启动
+ *
  * @author enping.jep
  * @date 2025/1/27 18:57
  **/
@@ -43,6 +45,11 @@ public class BootStrap {
         //初始化配置中心的接口  初始化com.alibaba.nacos.api.config.ConfigService
         configCenter.init(config.getRegistryAddress(), config.getEnv());
 
+        //实际执行的是com.jep.gateway.config.impl.NacosConfigCenter的方法
+        /**
+         * 创建了一个新的 RulesChangeListener 匿名内部类，并重写了 onRulesChange 方法。当配置中心的规则发生变化时，
+         * onRulesChange 方法会被调用，然后将新的规则放入 DynamicConfigManager 的规则映射中。
+         */
         configCenter.subscribeRulesChange(new RulesChangeListener() {
             /**
              * 当规则发生变化时调用的方法

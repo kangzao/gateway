@@ -54,15 +54,14 @@ public class NacosConfigCenter implements ConfigCenter {
             //初始化通知
             //从配置服务中获取初始配置信息
             String config = configService.getConfig(DATA_ID, env, 5000);
-            //{"rules":[{}, {}]}
             log.info("config from nacos: {}", config);
-            //如果配置信息非空，则解析规则并通知监听器
+            //如果配置信息非空，则解析规则并通知监听器 手动触发，添加到缓存中
             if (StringUtils.isNoneBlank(config)) {
                 List<Rule> rules = JSON.parseObject(config).getJSONArray("rules").toJavaList(Rule.class);
                 // 手动刷新 DynamicConfigManager中的规则
                 listener.onRulesChange(rules);
             }
-            //监听变化
+            //利用nacos的configService监听变化
             //添加配置监听器，以便在规则变化时收到通知
             configService.addListener(DATA_ID, env, new Listener() {
                 @Override
@@ -72,7 +71,7 @@ public class NacosConfigCenter implements ConfigCenter {
 
                 @Override
                 public void receiveConfigInfo(String configInfo) {
-                    //当接收到配置信息时，解析规则并通知监听器
+                    //当接收到配置信息时，解析规则并通知监听器  规则发生变化才会触发
                     log.info("com.alibaba.nacos.api.config.ConfigService.addListener:config from nacos: {}", configInfo);
                     List<Rule> rules = JSON.parseObject(configInfo).getJSONArray("rules").toJavaList(Rule.class);
                     listener.onRulesChange(rules);

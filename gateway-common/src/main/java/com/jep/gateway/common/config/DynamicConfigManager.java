@@ -1,6 +1,5 @@
 package com.jep.gateway.common.config;
 
-import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 
