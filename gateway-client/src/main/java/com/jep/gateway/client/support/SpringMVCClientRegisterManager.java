@@ -28,6 +28,8 @@ import static com.jep.gateway.common.constant.BasicConst.COLON_SEPARATOR;
 import static com.jep.gateway.common.constant.GatewayConst.DEFAULT_WEIGHT;
 
 /**
+ * SpringMVC 客户端注册管理器
+ *
  * @author enping.jep
  * @date 2025/1/28 17:23
  **/
@@ -79,13 +81,19 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
 
 
     /**
-     * 注册Spring MVC处理器映射
+     * 获取所有请求映射处理器。
+     * 遍历每个处理器中的方法映射。
+     * 获取方法所属的Bean实例。
+     * 扫描带有@Api注解的Bean，生成服务定义。
+     * 创建并配置服务实例。
+     * 将服务实例注册到服务注册中心。
      */
     private void doRegisterSpringMvc() {
-        //获取所有请求映射处理器，包括祖先类中的映射处理器
+        //通过BeanFactoryUtils.beansOfTypeIncludingAncestors方法，从Spring应用上下文（applicationContext）中获取所有类型为RequestMappingHandlerMapping的Bean。
+        //RequestMappingHandlerMapping是Spring MVC中用于处理请求映射的类，它负责将HTTP请求映射到具体的处理方法（即Controller中的方法）。
         Map<String, RequestMappingHandlerMapping> allRequestMappings = BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, RequestMappingHandlerMapping.class, true, false);
 
-        //遍历所有请求映射处理器
+        // 遍历每个RequestMappingHandlerMapping，并通过getHandlerMethods()方法获取所有请求映射信息（RequestMappingInfo）和对应的处理方法（HandlerMethod）。
         for (RequestMappingHandlerMapping handlerMapping : allRequestMappings.values()) {
             //获取每个映射处理器中的方法映射
             Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
@@ -105,7 +113,7 @@ public class SpringMVCClientRegisterManager extends AbstractClientRegisterManage
                 }
 
                 //扫描带有@Api注解的Bean，获取服务定义
-                ServiceDefinition serviceDefinition = ApiAnnotationScanner.getInstance().scanner(bean);
+                ServiceDefinition serviceDefinition = ApiAnnotationScanner.getInstance().scan(bean);
 
                 //如果服务定义为空，则跳过
                 if (serviceDefinition == null) {

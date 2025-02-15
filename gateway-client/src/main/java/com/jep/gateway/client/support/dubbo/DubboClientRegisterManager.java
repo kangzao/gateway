@@ -79,7 +79,7 @@ public class DubboClientRegisterManager extends AbstractClientRegisterManager im
         }
 
         // 扫描服务注解，获取服务定义
-        ServiceDefinition serviceDefinition = ApiAnnotationScanner.getInstance().scanner(bean, serviceBean);
+        ServiceDefinition serviceDefinition = ApiAnnotationScanner.getInstance().scan(bean, serviceBean);
 
         // 如果服务定义为空，则直接返回
         if (serviceDefinition == null) {

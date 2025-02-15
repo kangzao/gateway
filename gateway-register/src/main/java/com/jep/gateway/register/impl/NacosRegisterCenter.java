@@ -203,6 +203,7 @@ public class NacosRegisterCenter implements RegisterCenter {
         public void onEvent(Event event) {
             // 检查事件是否为注册中心事件
             if (event instanceof NamingEvent namingEvent) {
+                log.info("nacos event {}", namingEvent);
                 // 获取变更服务名称
                 String serviceName = namingEvent.getServiceName();
                 try {

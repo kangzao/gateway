@@ -15,8 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 扫描注解
- *
+ * ApiAnnotationScanner 是注解扫描类，扫描 ApiService、ApiInvoker 注解
  * @author enping.jep
  * @date 2025/1/28 11:28
  **/
@@ -40,7 +39,7 @@ public class ApiAnnotationScanner {
      * @param args 可变参数，用于传递特定协议（如Dubbo）的服务实例化对象
      * @return 返回生成的服务定义对象，如果入参不满足条件，则返回null
      */
-    public ServiceDefinition scanner(Object bean, Object... args) {
+    public ServiceDefinition scan(Object bean, Object... args) {
         // 获取bean的类信息
         Class<?> aClass = bean.getClass();
         // 检查类上是否标注了@ApiService注解

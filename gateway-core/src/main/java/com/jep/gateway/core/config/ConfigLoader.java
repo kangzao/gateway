@@ -41,7 +41,7 @@ public class ConfigLoader {
      * @param args
      * @return
      */
-    public Config load(String args[]) {
+    public Config load(String[] args) {
         //配置对象对默认值
         config = new Config();
 
