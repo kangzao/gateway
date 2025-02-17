@@ -108,11 +108,11 @@ public class BootStrap {
         //订阅
         registerCenter.subscribeAllServices(new RegisterCenterListener() {
             @Override
-            public void onChange(ServiceDefinition serviceDefinition, Set<ServiceInstance> serviceInstanceSet) {
-                log.info("refresh service and instance: {} {}", serviceDefinition.getUniqueId(), JSON.toJSON(serviceInstanceSet));
+            public void onChange(ServiceDefinition serviceDefinition, List<ServiceInstance> serviceInstances) {
+                log.info("refresh service and instance: {} {}", serviceDefinition.getUniqueId(), JSON.toJSON(serviceInstances));
                 DynamicConfigManager manager = DynamicConfigManager.getInstance();
                 //将这次变更事件影响之后的服务实例再次添加到对应的服务实例集合
-                manager.putServiceInstance(serviceDefinition.getUniqueId(), serviceInstanceSet);
+                manager.addServiceInstance(serviceDefinition.getUniqueId(), serviceInstances);
 
                 //修改发生对应的服务定义
                 manager.putServiceDefinition(serviceDefinition.getUniqueId(), serviceDefinition);

@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class Config {
 
+    //配置文件中的端口是5555，这里会被覆盖
     private int port = 8888;
 
     private int prometheusPort = 18000;

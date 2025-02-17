@@ -47,12 +47,12 @@ public class RoundRobinLoadBalanceRule implements LoadBalanceRule {
 
     @Override
     public ServiceInstance choose(String serviceId, boolean gray) {
-        Set<ServiceInstance> serviceInstanceSet = DynamicConfigManager.getInstance().getServiceInstanceByUniqueId(serviceId, gray);
-        if (serviceInstanceSet.isEmpty()) {
+        List<ServiceInstance> serviceInstances = DynamicConfigManager.getInstance().getServiceInstanceByServiceId(serviceId, gray);
+        if (serviceInstances.isEmpty()) {
             log.warn("No instance available for:{}", serviceId);
             throw new NotFoundException(SERVICE_INSTANCE_NOT_FOUND);
         }
-        List<ServiceInstance> instances = new ArrayList<ServiceInstance>(serviceInstanceSet);
+        List<ServiceInstance> instances = new ArrayList<ServiceInstance>(serviceInstances);
         if (instances.isEmpty()) {
             log.warn("No instance available for service:{}", serviceId);
             return null;

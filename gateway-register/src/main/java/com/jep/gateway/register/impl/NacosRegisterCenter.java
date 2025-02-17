@@ -23,10 +23,7 @@ import com.alibaba.nacos.api.naming.listener.EventListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -214,17 +211,17 @@ public class NacosRegisterCenter implements RegisterCenter {
                     // 获取所有服务实例
                     List<Instance> allInstances = namingService.getAllInstances(service.getName(), env);
                     // 创建一个集合存储服务实例
-                    Set<ServiceInstance> set = new HashSet<>();
+                    List<ServiceInstance> list = new ArrayList<>();
 
                     // 遍历所有实例，解析元数据中的服务实例信息并添加到集合中
                     for (Instance instance : allInstances) {
                         ServiceInstance serviceInstance = JSON.parseObject(instance.getMetadata().get(GatewayConst.META_DATA_KEY), ServiceInstance.class);
-                        set.add(serviceInstance);
+                        list.add(serviceInstance);
                     }
 
                     //调用订阅监听器接口
                     registerCenterListenerList.forEach(registerCenterListener -> {
-                        registerCenterListener.onChange(serviceDefinition, set);
+                        registerCenterListener.onChange(serviceDefinition, list);
                     });
                 } catch (NacosException e) {
                     // 处理Nacos异常

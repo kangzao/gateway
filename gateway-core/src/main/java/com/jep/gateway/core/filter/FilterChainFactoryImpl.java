@@ -96,8 +96,7 @@ public class FilterChainFactoryImpl implements FilterChainFactory {
 
         //监控相关的filter
         filters.add(getFilterInfo(FilterConst.MONITOR_FILTER_ID));
-        filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
-
+//        filters.add(getFilterInfo(FilterConst.MONITOR_END_FILTER_ID));
         if (rule != null) {
             Set<Rule.FilterConfig> filterConfigs = rule.getFilterConfigs();
             Iterator<Rule.FilterConfig> iterator = filterConfigs.iterator();
@@ -116,7 +115,7 @@ public class FilterChainFactoryImpl implements FilterChainFactory {
         }
         //每个服务请求最终最后需要添加路由过滤器
         filters.add(getFilterInfo(FilterConst.ROUTER_FILTER_ID));
-        //排序
+        //排序  如果filters中有null值，就会报错
         filters.sort(Comparator.comparingInt(Filter::getOrder));
         //添加到链表中
         chain.addFilterList(filters);

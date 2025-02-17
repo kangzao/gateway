@@ -22,9 +22,9 @@ public class DynamicConfigManager {
     private ConcurrentHashMap<String, ServiceDefinition> serviceDefinitionMap = new ConcurrentHashMap<>();
 
     /**
-     * 服务实例集合       serviceId —> Set<ServiceInstance>
+     * 服务实例集合       serviceId —> List<ServiceInstance>
      */
-    private ConcurrentHashMap<String, Set<ServiceInstance>> serviceInstanceMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<ServiceInstance>> serviceInstanceMap = new ConcurrentHashMap<>();
 
     /**
      * 规则集合         ruleId —> Rule
@@ -67,69 +67,22 @@ public class DynamicConfigManager {
     }
 
     /******* 对服务实例缓存的相关方法 ********/
-    public void putServiceInstance(String uniqueId, ServiceInstance instance) {
-        Set<ServiceInstance> instanceSet = serviceInstanceMap.get(uniqueId);
-        instanceSet.add(instance);
-    }
-
-    public void putServiceInstance(String uniqueId, Set<ServiceInstance> instanceSet) {
-        serviceInstanceMap.put(uniqueId, instanceSet);
+    public void putServiceInstance(String uniqueId, ServiceDefinition serviceDefinition) {
+        serviceDefinitionMap.put(uniqueId, serviceDefinition);
+        ;
     }
 
     /**
-     * 根据服务ID获取服务实例
+     * 将服务实例集合与唯一标识符关联并存储
+     * <p>
+     * 此方法用于将一个包含多个服务实例的集合与一个唯一的标识符关联起来
+     * 它通过将这些信息存入serviceInstanceMap来实现，使得后续可以根据唯一标识符检索服务实例集合
+     *
+     * @param uniqueId         唯一标识符，用于标识服务实例集合
+     * @param serviceInstances 服务实例集合，包含一组相关的服务实例
      */
-    public Set<ServiceInstance> getServiceInstanceByUniqueId(String uniqueId, boolean gray) {
-        Set<ServiceInstance> serviceInstances = serviceInstanceMap.get(uniqueId);
-        if (CollectionUtils.isEmpty(serviceInstances)) {
-            return Collections.emptySet();
-        }
-
-        // 为灰度流量,返回灰度服务实例
-        if (gray) {
-            return serviceInstances.stream().filter(ServiceInstance::isGray).collect(Collectors.toSet());
-        }
-
-        Iterator<ServiceInstance> iterator = serviceInstances.iterator();
-        while (iterator.hasNext()) {
-            ServiceInstance serviceInstance = iterator.next();
-            if (serviceInstance.isGray()) {
-                iterator.remove();
-            }
-        }
-        return serviceInstances;
-    }
-
-    /**
-     * 根据服务ID修改服务实例
-     */
-    public void updateServiceInstance(String uniqueId, ServiceInstance instance) {
-        Set<ServiceInstance> instanceSet = serviceInstanceMap.get(uniqueId);
-        Iterator<ServiceInstance> it = instanceSet.iterator();
-        while (it.hasNext()) {
-            ServiceInstance next = it.next();
-            if (next.getServiceInstanceId().equals(instance.getServiceInstanceId())) {
-                it.remove();
-                break;
-            }
-        }
-
-        instanceSet.add(instance);
-    }
-
-    /**
-     * 根据服务ID和服务实例ID删除服务实例
-     */
-    public void removeServiceInstance(String uniqueId, String serviceInstanceId) {
-        Set<ServiceInstance> instanceSet = serviceInstanceMap.get(uniqueId);
-        Iterator<ServiceInstance> iterator = instanceSet.iterator();
-        while (iterator.hasNext()) {
-            ServiceInstance next = iterator.next();
-            if (next.getServiceInstanceId().equals(serviceInstanceId)) {
-                iterator.remove();
-                break;
-            }
-        }
+    public void addServiceInstance(String uniqueId, List<ServiceInstance> serviceInstances) {
+        serviceInstanceMap.put(uniqueId, serviceInstances);
     }
 
     /**
@@ -182,5 +135,23 @@ public class DynamicConfigManager {
 
     public List<Rule> getRuleByServiceId(String serviceId) {
         return serviceRuleMap.get(serviceId);
+    }
+
+
+    /***************** 	对服务实例缓存进行操作的系列方法 	***************/
+
+    public List<ServiceInstance> getServiceInstanceByServiceId(String serviceId, boolean gray) {
+        List<ServiceInstance> serviceInstances = serviceInstanceMap.get(serviceId);
+        if (CollectionUtils.isEmpty(serviceInstances)) {
+            return serviceInstances;
+        }
+
+        if (gray) {
+            return serviceInstances.stream()
+                    .filter(ServiceInstance::isGray)
+                    .collect(Collectors.toList());
+        }
+
+        return serviceInstances;
     }
 }

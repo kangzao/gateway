@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 轮询的负载均衡过滤器
+ *
  * @author enping.jep
  * @date 2025/1/31 21:32
  **/
@@ -71,7 +72,7 @@ public class WeightedRoundRobinLoadBalanceRule implements LoadBalanceRule {
     @Override
     public ServiceInstance choose(String serviceId, boolean gray) {
         // 获取服务实例集合
-        Set<ServiceInstance> serviceSets = DynamicConfigManager.getInstance().getServiceInstanceByUniqueId(serviceId, gray);
+        List<ServiceInstance> serviceSets = DynamicConfigManager.getInstance().getServiceInstanceByServiceId(serviceId, gray);
         // 如果服务实例集合为空，则抛出异常
         if (CollectionUtils.isEmpty(serviceSets)) {
             log.warn("serviceId {} don't match any serviceInstance", serviceId);
