@@ -4,6 +4,7 @@ import com.jep.gateway.core.context.HttpRequestWrapper;
 
 /**
  * 自定义的Netty处理器接口，用于处理接收到的请求
+ * 业务处理器，负责报文的业务处理
  * @author enping.jep
  * @date 2025/1/27 21:38
  **/

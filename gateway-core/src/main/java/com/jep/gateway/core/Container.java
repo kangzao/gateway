@@ -17,6 +17,7 @@ import static com.jep.gateway.common.constant.GatewayConst.BUFFER_TYPE_PARALLEL;
  **/
 @Slf4j
 public class Container implements LifeCycle {
+
     private final Config config;
 
     private NettyHttpServer nettyHttpServer;

@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MyAnnotation {
     // 定义一个属性 value，默认值为空字符串
-    String value() default "";
+    String value() default "empty";
 
     // 定义一个属性 enabled，默认值为 true
     boolean enabled() default true;

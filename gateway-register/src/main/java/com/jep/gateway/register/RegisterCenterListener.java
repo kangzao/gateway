@@ -4,7 +4,6 @@ import com.jep.gateway.common.config.ServiceDefinition;
 import com.jep.gateway.common.config.ServiceInstance;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author enping.jep

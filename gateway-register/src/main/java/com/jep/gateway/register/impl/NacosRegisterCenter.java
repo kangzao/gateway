@@ -172,7 +172,7 @@ public class NacosRegisterCenter implements RegisterCenter {
                     //nacos 事件监听器 订阅当前服务
                     //这里需要自己实现一个 nacos 的事件订阅类 来具体执行订阅执行时的操作
                     EventListener eventListener = new NacosRegisterListener();
-                    //当前服务之前不存在 调用监听器方法进行添加处理
+                    //当前服务没有发生变化 调用监听器方法进行添加处理 手动触发 初始化缓存
                     eventListener.onEvent(new NamingEvent(service, null));
                     // 订阅指定运行环境下对应的服务名，注册中心服务发生变动时调用 onEvent() 方法更新本地缓存的服务信息
                     namingService.subscribe(service, env, eventListener);
@@ -219,7 +219,7 @@ public class NacosRegisterCenter implements RegisterCenter {
                         list.add(serviceInstance);
                     }
 
-                    //调用订阅监听器接口
+                    //调用订阅监听器接口 更新或者建立缓存
                     registerCenterListenerList.forEach(registerCenterListener -> {
                         registerCenterListener.onChange(serviceDefinition, list);
                     });
