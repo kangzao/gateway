@@ -17,6 +17,7 @@
         <module>gateway-client</module>
         <module>http-server</module>
         <module>gateway-example</module>
+        <module>user-server</module>
     </modules>
 
     <properties>

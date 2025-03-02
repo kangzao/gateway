@@ -1,0 +1,9 @@
+server:
+  port: 8181
+api:
+  registerAddress: localhost:8848
+  env: dev
+  gray: true
+spring:
+  application:
+    name: backend-user-server

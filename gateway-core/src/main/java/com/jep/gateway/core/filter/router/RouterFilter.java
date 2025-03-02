@@ -199,7 +199,14 @@ public class RouterFilter implements Filter {
         } finally {
             gatewayContext.setContextStatus(ContextStatus.Written);
             ResponseHelper.writeResponse(gatewayContext);
-            accessLog.info("{} {} {} {} {} {}", System.currentTimeMillis() - gatewayContext.getRequest().getBeginTime(), gatewayContext.getRequest().getClientIp(), gatewayContext.getRequest().getUniqueId(), gatewayContext.getRequest().getMethod(), gatewayContext.getRequest().getPath(), gatewayContext.getResponse().getHttpResponseStatus().code(), gatewayContext.getResponse().getFutureResponse().getResponseBodyAsBytes().length);
+            accessLog.info("{} {} {} {} {} {} {}",
+                    System.currentTimeMillis() - gatewayContext.getRequest().getBeginTime(),
+                    gatewayContext.getRequest().getClientIp(),
+                    gatewayContext.getRequest().getUniqueId(),
+                    gatewayContext.getRequest().getMethod(),
+                    gatewayContext.getRequest().getPath(),
+                    gatewayContext.getResponse().getHttpResponseStatus().code(),
+                    gatewayContext.getResponse().getFutureResponse().getResponseBodyAsBytes().length);
         }
     }
 

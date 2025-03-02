@@ -57,7 +57,7 @@ public class NettyHttpServer implements LifeCycle {
         // 创建ServerBootstrap实例，用于服务器的配置与启动
         this.serverBootstrap = new ServerBootstrap();
 
-        // 根据环境选择使用Epoll还是Nio
+        // 根据环境选择使用Epoll还是Nio  selector  poll epoll
         if (useEpoll()) {
             // 如果环境支持Epoll，创建EpollEventLoopGroup实例
             // 这里为Boss和Worker线程组分别创建实例，以处理不同的网络事件

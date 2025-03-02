@@ -93,7 +93,7 @@ public class NacosRegisterCenter implements RegisterCenter {
             nacosInstance.setInstanceId(serviceInstance.getServiceInstanceId());
             nacosInstance.setPort(serviceInstance.getPort());
             nacosInstance.setIp(serviceInstance.getIp());
-            // 实例信息可以放入到metadata中
+            // 实例信息可以放入 到metadata中
             nacosInstance.setMetadata(Map.of(GatewayConst.META_DATA_KEY, JSON.toJSONString(serviceInstance)));
 
             /**
