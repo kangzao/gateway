@@ -6,7 +6,7 @@ package com.jep.gateway.example.annotation;
  **/
 public class MyClass {
     // 使用注解，并设置 value 和 enabled 属性
-    @MyAnnotation(value = "Hello, Annotation!", enabled = true)
+    @MyAnnotation(value = "Hello, Annotation!", enabled = false)
     public void myMethod() {
         System.out.println("This is myMethod.");
     }

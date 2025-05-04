@@ -19,6 +19,14 @@ import lombok.extern.slf4j.Slf4j;
  * 使用Disruptor框架来异步处理HTTP请求。代码中包含了构造函数、请求处理方法、事件监听处理器以及启动和关闭Disruptor队列处理器的方法。
  * 同时，还包含了异常处理逻辑，用于在事件处理过程中出现异常时记录日志并发送错误响应。
  *
+ * 原始的 NettyCoreProcessor 直接处理每个 HTTP 请求，
+ * 而 DisruptorNettyCoreProcessor 使用了 Disruptor 框架，
+ * 将 HTTP 请求异步地添加到一个处理队列中，然后由 BatchEventListenerProcessor 来处理这个队列中的事件。
+ * Disruptor 是一个高性能的异步事件处理框架，它采用了无锁的设计，通过利用 RingBuffer 的结构，实现了高效的事件发布和消费。
+ * 在这里，使用 Disruptor 的好处是可以提高并发处理能力，减轻了 Netty 核心处理器的负担。
+ * 因为网络请求通常是 I/O 密集型的操作，通过异步处理可以提高系统的吞吐量。
+ *
+ *
  * @author enping.jep
  * @date 2025/1/27 22:20
  **/

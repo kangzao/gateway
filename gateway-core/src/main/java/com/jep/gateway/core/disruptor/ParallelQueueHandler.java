@@ -79,13 +79,17 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
      */
     @Override
     public void add(E event) {
+        // 获取环形缓冲区引用
         final RingBuffer<Holder> holderRing = ringBuffer;
+        // 如果环形缓冲区为空，则处理已关闭异常
         if (holderRing == null) {
             process(this.eventListener, new IllegalStateException("ParallelQueueHandler is close"), event);
         }
         try {
+            // 尝试将事件发布到环形缓冲区
             ringBuffer.publishEvent(this.eventTranslator, event);
         } catch (NullPointerException e) {
+            // 如果发生空指针异常，则处理已关闭异常
             process(this.eventListener, new IllegalStateException("ParallelQueueHandler is close"), event);
         }
     }
