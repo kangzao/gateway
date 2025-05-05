@@ -316,9 +316,19 @@ public class ParallelQueueHandler<E> implements ParallelQueue<E> {
 
 
     private class HolderWorkHandler implements WorkHandler<Holder> {
+        /**
+         * 当特定事件发生时，此方法被调用.
+         * 它不仅处理事件，还负责清理关联的事件数据.
+         *
+         * @param holder 一个包含事件数据的Holder对象.
+         *               这个对象被用来传递和处理事件.
+         * @throws Exception 如果事件处理过程中发生错误，则抛出异常.
+         */
         @Override
         public void onEvent(Holder holder) throws Exception {
+            // 调用外部事件监听器来处理事件
             eventListener.onEvent(holder.event);
+            // 事件处理后，重置Holder的值，为下一次事件做准备
             holder.setValue(null);
         }
     }
