@@ -61,7 +61,7 @@ public class RandomLoadBalanceRule implements LoadBalanceRule {
     @Override
     public ServiceInstance choose(String serviceId, boolean gray) {
         List<ServiceInstance> serviceInstances = DynamicConfigManager.getInstance().getServiceInstanceByServiceId(serviceId, gray);
-        if (serviceInstanceSet.isEmpty()) {
+        if (serviceInstances.isEmpty()) {
             log.warn("No instance available for:{}", serviceId);
             throw new NotFoundException(SERVICE_INSTANCE_NOT_FOUND);
         }
