@@ -62,25 +62,29 @@ public class BootStrap {
         });
 
         //启动容器
+
         Container container = new Container(config);
         container.start();
 
         //连接注册中心
         final RegisterCenter registerCenter = registerAndSubscribe(config);
 
-        //服务停机
-        //收到 kill 信号时触发，服务停机
-        Runtime.getRuntime().addShutdownHook(new Thread() {
 
+        // 添加JVM关闭钩子，用于在服务停止时执行清理操作
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             /**
-             * 服务停机
+             * 服务停机时执行的清理操作
+             * 当JVM接收到关闭信号时，会执行此方法来优雅地关闭服务
              */
             @Override
             public void run() {
+                // 从注册中心注销当前网关服务实例
                 registerCenter.deregister(buildGatewayServiceDefinition(config), buildGatewayServiceInstance(config));
+                // 关闭容器，释放相关资源
                 container.shutdown();
             }
         });
+
     }
 
 

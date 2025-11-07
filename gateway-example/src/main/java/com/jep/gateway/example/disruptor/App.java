@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
  **/
 public class App {
     public static void main(String[] args) {
+        // 参数准备
         OrderEventFactory orderEventFactory = new OrderEventFactory();
         int ringBufferSize = 4;
         ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -29,12 +30,16 @@ public class App {
          *1. 实例化disruptor对象
          *  1) eventFactory: 消息(event)工厂对象
          *  2) ringBufferSize: 容器的长度
-         *  3) executor:
+         *  3) executor: 线程池(建议使用自定义线程池)，RejectedExecutionHandler
          *  4) ProducerType: 单生产者还是多生产者
          *  5) waitStrategy: 等待策略
          */
-        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(orderEventFactory, ringBufferSize,
-                executor, ProducerType.SINGLE, new BlockingWaitStrategy());
+        Disruptor<OrderEvent> disruptor = new Disruptor<OrderEvent>(
+                orderEventFactory,
+                ringBufferSize,
+                executor,
+                ProducerType.SINGLE,//单生产者
+                new BlockingWaitStrategy());
         // 2. 添加消费者的监听 可以通过该对象添加消费者 EventHandler
 
         /*
@@ -46,16 +51,25 @@ public class App {
         disruptor.handleEventsWith(new OrderEventHandler());
         // 3. 启动disruptor
         disruptor.start();
+
         // 4. 获取实际存储数据的容器: RingBuffer
         RingBuffer<OrderEvent> ringBuffer = disruptor.getRingBuffer();
+        // 创建生产者对象，用于向RingBuffer中发布事件
         OrderEventProducer producer = new OrderEventProducer(ringBuffer);
+        // 分配一个容量为8字节的ByteBuffer，用于存储要发送的数据
         ByteBuffer bb = ByteBuffer.allocate(8);
+        // 循环5次，向Disruptor中发送5个事件
         for (long i = 0; i < 5; i++) {
+            // 将当前循环变量i放到ByteBuffer的起始位置(索引0处)
             bb.putLong(0, i);
+            // 通过生产者将数据发布到RingBuffer中
             producer.sendData(bb);
         }
+        // 关闭disruptor，释放资源
         disruptor.shutdown();
+        // 关闭线程池，释放资源
         executor.shutdown();
+
     }
 
 }

@@ -61,6 +61,7 @@ public class LoadBalanceFilter implements Filter {
 
         GatewayRequest gatewayRequest = ctx.getRequest();
         if (gatewayRequest != null) {
+            //todo modifyHost->targetHost
             String modifyHost = instance.getIp() + ":" + instance.getPort();
             gatewayRequest.setModifyHost(modifyHost);
         }

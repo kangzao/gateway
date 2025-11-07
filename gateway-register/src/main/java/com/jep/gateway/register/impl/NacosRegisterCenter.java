@@ -145,7 +145,7 @@ public class NacosRegisterCenter implements RegisterCenter {
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1, new NameThreadFactory("doSubscribeAllServices"));
 
         // 设置定时任务，每10秒执行一次订阅所有服务的操作
-        scheduledThreadPool.scheduleWithFixedDelay(this::doSubscribeAllServices, 10, 10, TimeUnit.SECONDS);
+//        scheduledThreadPool.scheduleWithFixedDelay(this::doSubscribeAllServices, 10, 10, TimeUnit.SECONDS);
     }
 
 
@@ -220,9 +220,9 @@ public class NacosRegisterCenter implements RegisterCenter {
                     }
 
                     //调用订阅监听器接口 更新或者建立缓存
-                    registerCenterListenerList.forEach(registerCenterListener -> {
+                    for (RegisterCenterListener registerCenterListener : registerCenterListenerList) {
                         registerCenterListener.onChange(serviceDefinition, list);
-                    });
+                    }
                 } catch (NacosException e) {
                     // 处理Nacos异常
                     throw new RuntimeException(e);

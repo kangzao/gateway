@@ -158,7 +158,7 @@ public class RouterFilter implements Filter {
         int confRetryTimes = rule.getRetryConfig().getTimes();
 
         // 异常发生后进行重试
-        if ((throwable instanceof TimeoutException || throwable instanceof IOException) && currentRetryTimes < confRetryTimes && hystrixConfig.isEmpty()) {
+        if ((throwable instanceof TimeoutException || throwable instanceof IOException) && currentRetryTimes <= confRetryTimes && hystrixConfig.isEmpty()) {
             doRetry(gatewayContext, currentRetryTimes);
             return;
         }
